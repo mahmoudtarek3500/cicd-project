@@ -21,7 +21,8 @@ jobs:
       - name: Check Node.js
         run: node --version
 
-  
-
       - name: Run tests
         run: npm test
+
+      - name: Build Docker image
+        run: docker build -t cicd-node-app .
