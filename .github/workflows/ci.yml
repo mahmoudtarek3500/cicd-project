@@ -4,26 +4,25 @@ on:
   push:
     branches:
       - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-          - name: Checkout code
-            uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-          - name: Setup Node.js
-            uses: actions/setup-node@v4
-            with:
-              node-version: 24
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
 
-         - name: Check Node.js
-           run: node --version 
+      - name: Check Node.js
+        run: node --version
 
-         - name: Start application
-           run: node app/server.js &
+      - name: Start application
+        run: node app/server.js &
 
-         - name: Run tests
-           run: npm test
-
-      
+      - name: Run tests
+        run: npm test
