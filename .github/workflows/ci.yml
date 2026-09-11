@@ -21,8 +21,7 @@ jobs:
       - name: Check Node.js
         run: node --version
 
-      - name: Start application
-        run: node app/server.js &
+  
 
       - name: Run tests
         run: npm test
