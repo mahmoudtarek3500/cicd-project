@@ -1,0 +1,21 @@
+{
+  "name": "cicd-project",
+  "version": "1.0.0",
+  "description": "My first CI/CD project",
+  "main": "index.js",
+  "scripts": {
+    "test": "node app/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mahmoudtarek3500/cicd-project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mahmoudtarek3500/cicd-project/issues"
+  },
+  "homepage": "https://github.com/mahmoudtarek3500/cicd-project#readme"
+}
