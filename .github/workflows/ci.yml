@@ -16,5 +16,13 @@ jobs:
          with:
            node-version: 24
 
-       - name: Check Node.js
-         run: node --version 
+      - name: Check Node.js
+        run: node --version 
+
+      - name: Start application
+        run: node app/server.js &
+
+      - name: Run tests
+        run: npm test
+
+      
