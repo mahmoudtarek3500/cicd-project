@@ -9,9 +9,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      ANSIBLE_HOST_KEY_CHECKING: "False"
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -40,32 +37,30 @@ jobs:
         run: docker push mahmoudtarek3500/cicd-node-app:latest
 
       - name: Install Ansible
-        run: |
-          sudo apt update
-          sudo apt install -y ansible
+        run: sudo apt-get update && sudo apt-get install -y ansible
 
       - name: Install Ansible Docker collection
-        run: |
-          ansible-galaxy collection install community.docker
+        run: ansible-galaxy collection install community.docker
 
       - name: Setup SSH key
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/cicd-ec2-key.pem
+          printf '%s\n' "$EC2_SSH_KEY" > ~/.ssh/cicd-ec2-key.pem
           chmod 600 ~/.ssh/cicd-ec2-key.pem
 
       - name: Create Ansible inventory
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
-          echo "[web]" > ansible/inventory
-          echo "ec2 ansible_host=$EC2_HOST ansible_user=ubuntu" >> ansible/inventory
+          mkdir -p ansible
+          printf '%s\n' '[web]' > ansible/inventory
+          printf '%s\n' "ec2 ansible_host=$EC2_HOST ansible_user=ubuntu" >> ansible/inventory
 
       - name: Test Ansible connection
-        run: |
-          ansible web -i ansible/inventory -m ping --private-key ~/.ssh/cicd-ec2-key.pem
+        run: ANSIBLE_HOST_KEY_CHECKING=False ansible web -i ansible/inventory -m ping --private-key ~/.ssh/cicd-ec2-key.pem
 
       - name: Deploy with Ansible
-        run: |
-          ansible-playbook -i ansible/inventory ansible/deploy.yml --private-key ~/.ssh/cicd-ec2-key.pem
-```
+        run: ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ansible/inventory ansible/deploy.yml --private-key ~/.ssh/cicd-ec2-key.pem
+
