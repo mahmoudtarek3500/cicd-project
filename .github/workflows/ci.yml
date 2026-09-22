@@ -1,3 +1,4 @@
+```yaml
 name: CI
 
 on:
@@ -33,36 +34,40 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-
       - name: Push Docker image
         run: docker push mahmoudtarek3500/cicd-node-app:latest
-      
+
       - name: Install Ansible
         run: |
           sudo apt update
           sudo apt install -y ansible
 
-        - name: Setup SSH key
-          run: |
-            mkdir -p ~/.ssh
-            echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/cicd-ec2-key.pem
-            chmod 600 ~/.ssh/cicd-ec2-key.pem
+      - name: Install Ansible Docker collection
+        run: |
+          ansible-galaxy collection install community.docker
 
-        - name: Deploy with Ansible
-          env:
-            EC2_HOST: ${{ secrets.EC2_HOST }}
-          run: |
-            ansible-playbook -i ansible/inventory ansible/deploy.yml \
-              --private-key ~/.ssh/cicd-ec2-key.pem
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/cicd-ec2-key.pem
+          chmod 600 ~/.ssh/cicd-ec2-key.pem
 
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            sudo docker pull mahmoudtarek3500/cicd-node-app:latest
-            sudo docker stop cicd-container || true
-            sudo docker rm cicd-container || true
-            sudo docker run -d -p 3000:3000 --name cicd-container --restart unless-stopped mahmoudtarek3500/cicd-node-app:latest
+      - name: Create Ansible inventory
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          echo "[web]" > ansible/inventory
+          echo "ec2 ansible_host=$EC2_HOST ansible_user=ubuntu" >> ansible/inventory
+
+      - name: Test Ansible connection
+        run: |
+          ansible web -i ansible/inventory -m ping \
+            --private-key ~/.ssh/cicd-ec2-key.pem
+
+      - name: Deploy with Ansible
+        run: |
+          ansible-playbook \
+            -i ansible/inventory \
+            ansible/deploy.yml \
+            --private-key ~/.ssh/cicd-ec2-key.pem
+```
