@@ -1,4 +1,3 @@
-```yaml
 name: CI
 
 on:
@@ -61,13 +60,8 @@ jobs:
 
       - name: Test Ansible connection
         run: |
-          ansible web -i ansible/inventory -m ping \
-            --private-key ~/.ssh/cicd-ec2-key.pem
+          ansible web -i ansible/inventory -m ping --private-key ~/.ssh/cicd-ec2-key.pem
 
       - name: Deploy with Ansible
         run: |
-          ansible-playbook \
-            -i ansible/inventory \
-            ansible/deploy.yml \
-            --private-key ~/.ssh/cicd-ec2-key.pem
-```
+          ansible-playbook -i ansible/inventory ansible/deploy.yml --private-key ~/.ssh/cicd-ec2-key.pem
