@@ -12,7 +12,7 @@ http.get("http://localhost:3000", (res) => {
 
   res.on("end", () => {
     assert.strictEqual(res.statusCode, 200);
-    assert.strictEqual(data, "CI/CD Deployment v3. is Working!\n");
+    assert.strictEqual(data, "CI/CD Deployment v4 is Working halawala!\n");
 
     console.log("Test Passed!");
     server.close();
