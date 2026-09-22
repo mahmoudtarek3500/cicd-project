@@ -36,7 +36,24 @@ jobs:
 
       - name: Push Docker image
         run: docker push mahmoudtarek3500/cicd-node-app:latest
+      
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
 
+        - name: Setup SSH key
+          run: |
+            mkdir -p ~/.ssh
+            echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/cicd-ec2-key.pem
+            chmod 600 ~/.ssh/cicd-ec2-key.pem
+
+        - name: Deploy with Ansible
+          env:
+            EC2_HOST: ${{ secrets.EC2_HOST }}
+          run: |
+            ansible-playbook -i ansible/inventory ansible/deploy.yml \
+              --private-key ~/.ssh/cicd-ec2-key.pem
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.2.0
